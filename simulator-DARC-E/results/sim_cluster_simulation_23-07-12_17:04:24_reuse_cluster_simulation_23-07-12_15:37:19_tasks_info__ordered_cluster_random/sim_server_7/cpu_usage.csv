@@ -1,0 +1,10 @@
+Thread ID,Busy Time,Task Time,Work Stealing Time,Work Steal Spin Time,Enqueue Time,Requeue Time,Successful Work Steal Time,Unsuccessful Work Steal Time,Allocation Time,Non Work Conserving Time,Distracted Time,Unpaired Time,Paired Time
+0,995531,995531,0,0,0,0,0,0,0,0,0,0,0
+1,995981,995981,0,0,0,0,0,0,0,0,0,0,0
+2,1000000,996072,3928,0,0,0,68,3860,0,119,2,0,0
+3,1000002,996454,3548,0,0,0,99,3445,0,139,4,0,0
+4,1000001,997279,2722,0,0,0,74,2646,0,76,7,0,0
+5,1000000,996185,3815,0,0,0,56,3759,0,54,7,0,0
+6,1000001,997471,2530,0,0,0,72,2455,0,71,8,0,0
+7,1000002,996547,3455,0,0,0,69,3382,0,75,8,0,0
+8,1000002,996553,3449,0,0,0,59,3386,0,64,6,0,0
