@@ -40,7 +40,7 @@ def def_type(service_time):
 ###########用于复现同一任务不用调度策略下的值################
 def write_tasks_into_file(run_name,tasks):
 
-    dir_path = "/home/yqy/simulator-DARC-E/task_record/" 
+    dir_path = "/home/yqy/simulation_schedule/simulator-DARC-E/task_record/" 
     os.chdir(dir_path)
     task_file   = open("{}_tasks_info.csv".format(run_name), "w")
 
@@ -64,7 +64,7 @@ def read_tasks_from_file(file_path,tasks):
     task_file.close()
     print("download task file complete !")
 
-def Generate_cluster_tasks(cfg,tasks_list):
+def Generate_cluster_tasks(cfg,tasks_list,task_distribution_para,task_delay_para):
     #生成的时间符合：exponential distribution指数分布
     #泊松分布是单位时间内独立事件发生次数的概率分布，指数分布是独立事件的时间间隔的概率分布。
     #泊松过程的到达率λ可以看作是单位时间内随机事件的平均发生次数。它的值越大，单位时间内随机事件的发生次数就越多。
@@ -76,10 +76,10 @@ def Generate_cluster_tasks(cfg,tasks_list):
     request_rate = cfg.avg_system_load * cfg.load_thread_count / cfg.AVERAGE_SERVICE_TIME
     next_task_time = int(1/request_rate) if cfg.regular_arrivals else int(random.expovariate(request_rate))
     if cfg.bimodal_service_time:
-            distribution = [50] * 1 + [500] * 9 
+            distribution = [task_distribution_para[0][0]] * task_distribution_para[0][1] + [task_distribution_para[1][0]] * task_distribution_para[1][1] 
     #job的个数
     i = 0
-    task_arrive_distribution = [0]*9 + [100]*1
+    task_arrive_distribution = [task_delay_para[0][0]]*task_delay_para[0][1] + [task_delay_para[1][0]]*task_delay_para[1][1]
     while (cfg.sim_duration is None or next_task_time < cfg.sim_duration) and \
                 (cfg.num_tasks is None or i < cfg.num_tasks):
         #单个作业包含的任务个数
@@ -666,7 +666,7 @@ if __name__ == "__main__":
                                                     datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S"))
 ###################读取配置文件#############################
     #服务器集群中服务器的个数
-    server_num = 8
+    server_num = 3
     #集群调度是否使用随机分配方法
     cluster_random_schedule = True
     #服务器集群power of  k  choice 
@@ -674,18 +674,18 @@ if __name__ == "__main__":
     #服务器集群队列
     server_thread = []
     #是否优先完成序号在前的作业的任务，解决一致性问题
-    job_id_ordered = False
+    job_id_ordered = True
     #是否记录本次生成的task集
     record_task = True
     #是否从task_file中读取task
-    read_task_file = True
+    read_task_file = False
     #taskfile的路径
-    task_file_path = "/home/yqy/simulator-DARC-E/task_record/cluster_simulation_23-07-11_11:35:52_tasks_info.csv"
+    task_file_path = "/home/yqy/simulation_schedule/simulator-DARC-E/task_record/cluster_simulation_23-07-13_16:43:51_tasks_info.csv"
     #用于获取此时的路径，用于存出仿真结果
     path_to_sim = os.path.relpath(pathlib.Path(__file__).resolve().parents[1], start=os.curdir)
     #打开配置文件，读取配置文件
-    if os.path.isfile("/home/yqy/simulator-DARC-E/configs/config.json"):
-        cfg_json = open("/home/yqy/simulator-DARC-E/configs/config.json", "r")
+    if os.path.isfile("/home/yqy/simulation_schedule/simulator-DARC-E/configs/config.json"):
+        cfg_json = open("/home/yqy/simulation_schedule/simulator-DARC-E/configs/config.json", "r")
         cfg = json.load(cfg_json, object_hook=SimConfig.decode_object)
         #每个服务器的run_name不应该一样，
         cfg.name = "server_"
@@ -700,8 +700,25 @@ if __name__ == "__main__":
     tasks = []
     ###########任务生成的两种逻辑##########
     if read_task_file == False:
+        #####初始化任务参数####(双峰，三峰参数)
+        task_distribution_para = []
+        task_distribution_para.append([50,9])
+        task_distribution_para.append([500,1])
+        ######任务的延迟分布，是范围或者是+random
+        task_delay_para = []
+        task_delay_para.append([0,9])
+        task_delay_para.append([100,1])
+        i = 0
+        while i < len(task_distribution_para):
+            run_name = run_name + "-"+str(task_distribution_para[i][0]) + "_" + str(task_distribution_para[i][1])
+            i = i + 1
+        run_name = run_name + "-delay"
+        i= 0
+        while i < len(task_delay_para):
+            run_name = run_name + "-"+str(task_delay_para[i][0]) + "_" + str(task_delay_para[i][1])
+            i = i + 1
         tasks_list = []
-        Generate_cluster_tasks(cfg,tasks_list)
+        Generate_cluster_tasks(cfg,tasks_list,task_distribution_para,task_delay_para)
         ##############按照到达顺序给任务排序################
         tasks = sorted(tasks_list, key = lambda x: x[3])
         #记录此次仿真，用于下次仿真
