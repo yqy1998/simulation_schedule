@@ -1,5 +1,5 @@
 {
- "avg_system_load": 0.1,
+ "avg_system_load": 0.05,
  "num_queues": 3,
  "num_threads": 9,
  "mapping": [
@@ -41,7 +41,7 @@
  "bimodal_service_time": true,
  "join_bounded_shortest_queue": false,
  "record_queue_lens": false,
- "AVERAGE_SERVICE_TIME": 455,
+ "AVERAGE_SERVICE_TIME": 95,
  "WORK_STEAL_CHECK_TIME": 1,
  "WORK_STEAL_TIME": 1,
  "MINIMUM_WORK_SEARCH_TIME": 31,
